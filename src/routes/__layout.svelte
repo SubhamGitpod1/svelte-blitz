@@ -3,6 +3,12 @@
 	import '../app.css';
 </script>
 
+<svelte:head>
+	{@html import.meta.env.MODE === "development" ? `<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+	<script>eruda.init();</script>` : ""
+	}
+</svelte:head>
+
 <Header />
 
 <main>

@@ -1,5 +1,10 @@
 <script context="module" lang="ts">
 	export const prerender = true;
+	const onClick = async () => {
+		console.log("clicked")
+		const {default: getCurrentUser} = await import("app/users/queries/getCurrentUser")
+		console.log(getCurrentUser.toString())
+	}
 </script>
 
 <script lang="ts">
@@ -59,3 +64,4 @@
 		display: block;
 	}
 </style>
+<button on:click="{onClick}">click me!</button>
