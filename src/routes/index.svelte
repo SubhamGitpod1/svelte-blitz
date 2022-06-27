@@ -1,28 +1,33 @@
 <script context="module" lang="ts">
 	export const prerender = true;
-	export const load: Load = async ({fetch}) => {
-		console.log(await (await fetch("/api/rpc/getCurrentUser", {method: "POST", body: JSON.stringify({params: null})})).text())
-		return {}
-	}
-	console.log(readCookie("blitz-cookie-prefix"))
+	export const load: Load = async ({ fetch }) => {
+		console.log(
+			await (
+				await fetch('/api/rpc/getCurrentUser', {
+					method: 'POST',
+					body: JSON.stringify({ params: null })
+				})
+			).text()
+		);
+		return {};
+	};
+	console.log(readCookie('blitz-cookie-prefix'));
 	const onClick = async () => {
 		try {
-
-			console.log("clicked")
-			const {default: getCurrentUser} = await import("app/users/queries/getCurrentUser")
-			alert(getCurrentUser.toString())
-			alert(await getCurrentUser(null, {session: {}} as any))
+			console.log('clicked');
+			const { default: getCurrentUser } = await import('app/users/queries/getCurrentUser');
+			alert(getCurrentUser.toString());
+			alert(await getCurrentUser(null, { session: {} } as any));
+		} catch (err: any) {
+			alert(JSON.stringify(err));
 		}
-		catch(err: any) {
-			alert(JSON.stringify(err))
-		}
-	}
+	};
 </script>
 
 <script lang="ts">
 	import Counter from '$lib/Counter.svelte';
-import type { Load } from '.svelte-kit/types/src/routes/todos/__types';
-import { readCookie } from 'blitz/dist/index-browser';
+	import type { Load } from '.svelte-kit/types/src/routes/todos/__types';
+	import { readCookie } from 'blitz/dist/index-browser';
 </script>
 
 <svelte:head>
@@ -48,6 +53,7 @@ import { readCookie } from 'blitz/dist/index-browser';
 
 	<Counter />
 </section>
+<button on:click={onClick}>click me!</button>
 
 <style>
 	section {
@@ -78,4 +84,3 @@ import { readCookie } from 'blitz/dist/index-browser';
 		display: block;
 	}
 </style>
-<button on:click="{onClick}">click me!</button>

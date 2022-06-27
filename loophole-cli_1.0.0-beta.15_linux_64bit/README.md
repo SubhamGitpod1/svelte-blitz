@@ -39,7 +39,6 @@ Congrats, you can now share the presented link to the world.
 
 For more information head over to [docs](https://loophole.cloud/docs/).
 
-
 ## Development
 
 ### Testing

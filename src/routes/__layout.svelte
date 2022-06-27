@@ -1,17 +1,19 @@
 <script lang="ts">
-	import {browser} from "$app/env"
+	import { browser } from '$app/env';
 	import Header from '$lib/header/Header.svelte';
 	import '../app.css';
-	if(browser) (async () => {
-		const {BlitzRpcPlugin} = await import("@blitzjs/rpc/dist/index-browser.mjs")
-		BlitzRpcPlugin({})
-	})()
+	if (browser)
+		(async () => {
+			const { BlitzRpcPlugin } = await import('@blitzjs/rpc/dist/index-browser.mjs');
+			BlitzRpcPlugin({});
+		})();
 </script>
 
 <svelte:head>
-	{@html import.meta.env.MODE === "development" ? `<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-	<script>eruda.init();</script>` : ""
-	}
+	{@html import.meta.env.MODE === 'development'
+		? `<script src="https://cdn.jsdelivr.net/npm/eruda" ✂prettier:content✂="">{}</script>
+	<script ✂prettier:content✂="ZXJ1ZGEuaW5pdCgpOw==">{}</script>`
+		: ''}
 </svelte:head>
 
 <Header />
