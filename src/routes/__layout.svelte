@@ -2,6 +2,7 @@
 	import { browser } from '$app/env';
 	import Header from '$lib/header/Header.svelte';
 	import '../app.css';
+
 	if (browser)
 		(async () => {
 			const { BlitzRpcPlugin } = await import('@blitzjs/rpc/dist/index-browser.mjs');

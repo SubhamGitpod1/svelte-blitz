@@ -7,7 +7,7 @@
 					method: 'POST',
 					body: JSON.stringify({ params: null })
 				})
-			).text()
+			).json()
 		);
 		return {};
 	};
