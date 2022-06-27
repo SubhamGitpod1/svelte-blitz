@@ -1,7 +1,8 @@
+// @no-check
 import { isClient, isServer, CSRFTokenMismatchError, createClientPlugin } from 'blitz/dist/index-browser';
 import { useQuery as useQuery$1, useInfiniteQuery as useInfiniteQuery$1, useMutation as useMutation$1, QueryClient } from 'react-query';
 export { QueryClient, useQueryErrorResetBoundary } from 'react-query';
-// import { getAntiCSRFToken, HEADER_CSRF, HEADER_PUBLIC_DATA_TOKEN, getPublicDataStore, HEADER_SESSION_CREATED, HEADER_CSRF_ERROR, useSession } from '@blitzjs/auth';
+import { getAntiCSRFToken, HEADER_CSRF, HEADER_PUBLIC_DATA_TOKEN, getPublicDataStore, HEADER_SESSION_CREATED, HEADER_CSRF_ERROR, useSession } from '../../auth/dist/index-browser.mjs';
 import { serialize, deserialize } from 'superjson';
 import { useRouter } from 'next/router';
 export { dehydrate } from 'react-query/hydration';

@@ -1,9 +1,16 @@
 <script context="module" lang="ts">
 	export const prerender = true;
 	const onClick = async () => {
-		console.log("clicked")
-		const {default: getCurrentUser} = await import("app/users/queries/getCurrentUser")
-		console.log(getCurrentUser.toString())
+		try {
+
+			console.log("clicked")
+			const {default: getCurrentUser} = await import("app/users/queries/getCurrentUser")
+			alert(getCurrentUser.toString())
+			alert(await getCurrentUser(null, {session: {}} as any))
+		}
+		catch(err: any) {
+			alert(JSON.stringify(err))
+		}
 	}
 </script>
 

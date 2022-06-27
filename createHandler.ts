@@ -2,9 +2,16 @@ import express, { type RequestHandler, type Response } from "express";
 import type {RequestEvent, RequestHandlerOutput} from "@sveltejs/kit"
 import cookie from "cookie"
 import { createRequest, createResponse, type RequestMethod } from "node-mocks-http"
-
-export default function createHandler(handler: RequestHandler) {
-    return (event: RequestEvent) => {
+import type { NextApiHandler } from "@blitzjs/next";
+const getBody = async (request: Request) => {
+    try {
+        return await request.json()
+    } catch {
+        return null
+    }
+}
+export default function createHandler(handler: NextApiHandler) {
+    return async (event: RequestEvent) => {
         event.params["blitz"]
         const app = express()
         const responsKeys: (
@@ -65,11 +72,12 @@ export default function createHandler(handler: RequestHandler) {
             url: event.request.url,
             headers,
             cookie: cookie.parse(event.request.headers.get("Cookie") ?? ""),
-            parems: Object.keys(event.params).reduce((params, key) => ({
+            query: Object.keys(event.params).reduce((params, key) => ({
                 ...params,
                 [key]: event.params[key].split("/")
             }), {}),
-            method: event.request.method as RequestMethod
+            method: event.request.method as RequestMethod,
+            body: await getBody(event.request)
         })
         const response = createResponse({
             req: request
@@ -88,7 +96,7 @@ export default function createHandler(handler: RequestHandler) {
             }).bind(res) as typeof res.end
             next()
         }))
-        app.use(handler)
+        app.use(handler as any)
         app(request, response)
         return result
     }
