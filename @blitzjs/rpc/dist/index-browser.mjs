@@ -1,4 +1,4 @@
-// @no-check
+// @ts-nocheck
 import { isClient, isServer, CSRFTokenMismatchError, createClientPlugin } from 'blitz/dist/index-browser';
 import { useQuery as useQuery$1, useInfiniteQuery as useInfiniteQuery$1, useMutation as useMutation$1, QueryClient } from 'react-query';
 export { QueryClient, useQueryErrorResetBoundary } from 'react-query';

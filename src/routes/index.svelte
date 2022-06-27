@@ -1,5 +1,10 @@
 <script context="module" lang="ts">
 	export const prerender = true;
+	export const load: Load = async ({fetch}) => {
+		console.log(await (await fetch("/api/rpc/getCurrentUser", {method: "POST", body: JSON.stringify({params: null})})).text())
+		return {}
+	}
+	console.log(readCookie("blitz-cookie-prefix"))
 	const onClick = async () => {
 		try {
 
@@ -16,6 +21,8 @@
 
 <script lang="ts">
 	import Counter from '$lib/Counter.svelte';
+import type { Load } from '.svelte-kit/types/src/routes/todos/__types';
+import { readCookie } from 'blitz/dist/index-browser';
 </script>
 
 <svelte:head>

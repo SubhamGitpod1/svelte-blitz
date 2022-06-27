@@ -57,7 +57,7 @@ const config = {
 					enforce: "pre"
 				},
 				{
-					async resolveId(id) {
+					async resolveId(id, importer, options) {
 						if(id.startsWith("./") || id.startsWith("/")) return
 						try {
 							const posibleImportExtensionGlob = `?(${consideredExtensions.join("|")})`
@@ -76,7 +76,6 @@ const config = {
 								await fs.stat(path.join(indexfile))
 								return indexfile
 							} catch {
-	
 								return resolvedImport
 							}
 						} catch {
@@ -85,13 +84,6 @@ const config = {
 					},
 					name: "typescript:import-from-base",
 					enforce: "pre"
-				},
-				{
-					name: "import:dir-import",
-					enforce: "pre",
-					async resolveId(id) {
-						
-					}
 				}
 			]
 		}

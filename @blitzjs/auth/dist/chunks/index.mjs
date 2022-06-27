@@ -2,7 +2,7 @@
 import { fromBase64 } from 'b64-lite';
 import _BadBehavior from 'bad-behavior';
 import React, { useState, useEffect } from 'react';
-import { assert, readCookie, isServer, isClient, AuthenticationError, RedirectError, createClientPlugin, deleteCookie } from 'blitz/dist/index-browser';
+import { assert, readCookie, isServer, isClient, AuthenticationError, RedirectError, createClientPlugin, deleteCookie } from 'blitz/dist/index-browser.mjs';
 import _debug from 'debug';
 const TOKEN_SEPARATOR = ";";
 const HANDLE_SEPARATOR = ":";
