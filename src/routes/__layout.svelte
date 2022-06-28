@@ -1,5 +1,6 @@
-<script lang="ts">
+<script context="module" lang="ts">
 	import { browser } from '$app/env';
+	import {loadWithBlitz} from "app/blitz-client"
 	import Header from '$lib/header/Header.svelte';
 	import '../app.css';
 
@@ -8,13 +9,13 @@
 			const { BlitzRpcPlugin } = await import('@blitzjs/rpc/dist/index-browser.mjs');
 			BlitzRpcPlugin({});
 		})();
+	export const load = loadWithBlitz(() => ({}))
+	console.log(import.meta.env.MODE)
 </script>
 
 <svelte:head>
-	{@html import.meta.env.MODE === 'development'
-		? `<script src="https://cdn.jsdelivr.net/npm/eruda" ✂prettier:content✂="">{}</script>
-	<script ✂prettier:content✂="ZXJ1ZGEuaW5pdCgpOw==">{}</script>`
-		: ''}
+	{@html `<script src="node_modules/eruda/eruda.js"></script>
+	<script>eruda.init();</script>`}
 </svelte:head>
 
 <Header />

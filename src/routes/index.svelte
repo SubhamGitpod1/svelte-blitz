@@ -1,16 +1,5 @@
 <script context="module" lang="ts">
 	export const prerender = true;
-	export const load: Load = async ({ fetch }) => {
-		console.log(
-			await (
-				await fetch('/api/rpc/getCurrentUser', {
-					method: 'POST',
-					body: JSON.stringify({ params: null })
-				})
-			).json()
-		);
-		return {};
-	};
 	console.log(readCookie('blitz-cookie-prefix'));
 	const onClick = async () => {
 		try {
