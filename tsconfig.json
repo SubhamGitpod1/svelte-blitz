@@ -12,5 +12,6 @@
 		"baseUrl": ".",
 		"target": "ES6",
 		"moduleResolution": "node"
-	}
+	},
+	
 }

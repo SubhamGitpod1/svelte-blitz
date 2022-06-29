@@ -1,5 +1,6 @@
-import type { Handle } from '@sveltejs/kit';
+import type { GetSession, Handle } from '@sveltejs/kit';
 import * as cookie from 'cookie';
+import { getSessionWithBlitz } from 'app/blitz-server';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const cookies = cookie.parse(event.request.headers.get('cookie') || '');
@@ -21,3 +22,5 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	return response;
 };
+
+export const getSession: GetSession = getSessionWithBlitz(() => ({}))

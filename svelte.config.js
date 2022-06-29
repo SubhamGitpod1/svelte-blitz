@@ -59,7 +59,7 @@ const config = {
 				},
 				{
 					async resolveId(id, importer, options) {
-						// console.log(id, importer)
+						this.h = "hello"
 						if (id.startsWith('./') || id.startsWith('/')) return;
 						try {
 							const posibleImportExtensionGlob = `?(${consideredExtensions.join('|')})`;

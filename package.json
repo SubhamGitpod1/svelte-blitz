@@ -55,6 +55,7 @@
 		"debug": "^4.3.4",
 		"eruda": "^2.4.1",
 		"glob": "^8.0.3",
+		"javascript-stringify": "^2.1.0",
 		"mock-express-request": "^0.2.2",
 		"mock-express-response": "^0.3.0",
 		"mock-req-res": "^1.2.0",
@@ -62,6 +63,7 @@
 		"rollup-plugin-local-resolve": "^1.0.7",
 		"rollup-plugin-node-resolve": "^5.2.0",
 		"rollup-plugin-polyfill-node": "^0.9.0",
+		"stringify-parse": "^1.0.6",
 		"vite-tsconfig-paths": "^3.5.0"
 	}
 }

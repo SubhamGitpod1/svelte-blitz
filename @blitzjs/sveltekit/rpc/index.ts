@@ -39,11 +39,8 @@ export async function invoke<T extends (...args: any[]) => any>(fn: T, argument:
 
 export const loadWithBlitz = (load: Load): Load => {
     return async (...args) => {
-        await setContext((args[0].session as any)?.BlitzContext as Ctx)
+        await setContext(eval((args[0].session as any)?.BlitzContext) as Ctx)
         const loadReturn = await load(...args)
         return await load(...args)
     }
-}
-export const getSession = (getSession: GetSession) => {
-    
 }
