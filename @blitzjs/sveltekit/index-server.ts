@@ -4,7 +4,6 @@ import type { GetSession, Load } from "@sveltejs/kit";
 import {stringify} from "javascript-stringify"
 import { getRequestResponse } from "../../createHandler";
 
-
 export const getSessionWithBlitz = (getSession: GetSession): GetSession => {
     return async (event) => {
         const session = await getSession(event)

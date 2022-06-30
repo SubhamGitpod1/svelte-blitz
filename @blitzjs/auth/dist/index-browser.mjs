@@ -26,7 +26,7 @@ export {
 	b as useAuthorizeIf,
 	e as useRedirectAuthenticated,
 	u as useSession
-} from './chunks/index.mjs';
+} from './chunks/index.js';
 import 'b64-lite';
 import 'bad-behavior';
 import 'react';

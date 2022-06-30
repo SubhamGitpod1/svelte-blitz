@@ -13,5 +13,8 @@
 		"target": "ES6",
 		"moduleResolution": "node"
 	},
-	
+	"include": [
+		"./**/*.ts",
+		"./**/*.svelte"
+	]
 }
