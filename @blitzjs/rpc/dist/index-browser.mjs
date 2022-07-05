@@ -4,7 +4,7 @@ import {
 	isServer,
 	CSRFTokenMismatchError,
 	createClientPlugin
-} from 'blitz/dist/index-browser';
+} from 'blitz/dist/index-browser.mjs';
 import {
 	useQuery as useQuery$1,
 	useInfiniteQuery as useInfiniteQuery$1,
@@ -22,10 +22,10 @@ import {
 	useSession
 } from '../../auth/dist/index-browser.mjs';
 import { serialize, deserialize } from 'superjson';
-import { useRouter } from 'next/router';
-export { dehydrate } from 'react-query/hydration';
-import { normalizePathTrailingSlash } from 'next/dist/client/normalize-trailing-slash';
-import { addBasePath } from 'next/dist/shared/lib/router/router';
+import { useRouter } from 'next/router.js';
+export { dehydrate } from 'react-query/lib/hydration/index.js';
+import { normalizePathTrailingSlash } from 'next/dist/client/normalize-trailing-slash.js';
+import { addBasePath } from 'next/dist/shared/lib/router/router.js';
 
 const requestIdleCallback =
 	(typeof self !== 'undefined' &&

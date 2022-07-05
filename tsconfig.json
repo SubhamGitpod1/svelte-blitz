@@ -11,7 +11,7 @@
 		"rootDir": ".",
 		"baseUrl": ".",
 		"target": "ES6",
-		"moduleResolution": "node"
+		"moduleResolution": "classic"
 	},
 	"include": [
 		"./**/*.ts",

@@ -1,4 +1,4 @@
-import { type Ctx, isClient } from "blitz/dist/index-browser";
+import { type Ctx, isClient } from "blitz/dist/index-browser.mjs";
 import {invoke as blitzInvoke} from "../../rpc/dist/index-browser.mjs"
 import EventEmitter from "events"
 import type { GetSession, Load } from "@sveltejs/kit";

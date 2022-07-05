@@ -1,18 +1,17 @@
 <script context="module" lang="ts">
-	import { browser } from '$app/env';
 	import {loadWithBlitz} from "app/blitz-client"
+	import {setContext} from "svelte"
+	import {writable} from "svelte/store"
 	import Header from '$lib/header/Header.svelte';
 	import '../app.css';
 
-	if (browser)
-		(async () => {
-			const { BlitzRpcPlugin } = await import('@blitzjs/rpc/dist/index-browser.mjs');
-			BlitzRpcPlugin({});
-		})();
 	export const load = loadWithBlitz(() => ({}))
 	console.log(import.meta.env.MODE)
 </script>
-
+<script lang="ts">
+	let title = writable("blitz")
+	
+</script>
 <svelte:head>
 	{@html `<script src="node_modules/eruda/eruda.js"></script>
 	<script>eruda.init();</script>`}

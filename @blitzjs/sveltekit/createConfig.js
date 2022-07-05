@@ -7,6 +7,7 @@ import { transformBlitzRpcResolverClient } from '../rpc/dist/loader-client.cjs';
 import { transformBlitzRpcServer, collectResolvers } from '../rpc/dist/loader-server.cjs';
 import polyfillNode from 'rollup-plugin-polyfill-node';
 import resolve from "resolve"
+import viteTsPathWithMultyIndex from "../../vite-ts-path-with-multy-index-support/lib/plugin/plugin.js"
 // import type {Config} from "@sveltejs/kit"
 // import type {UserConfig} from "vite"
 // import type { MaybePromise } from '@sveltejs/kit/types/private';
@@ -108,37 +109,38 @@ export function createConfig(config) {
                             name: 'blitz:server-loader',
                             enforce: 'pre'
                         },
-                        {
-                            resolveId(id, importer, options) {
-                                if(id === "blitz" && !options.ssr) return resolve.sync("blitz/dist/index-browser.mjs")
-                            },
-                            enforce: "pre",
-                            name: "blitz:let-blitz-load-on-frontend"
-                        },
-                        {
-                            async resolveId(id) {
-                                if (id.startsWith('./') || id.startsWith('/')) return;
-                                try {
-                                    const posibleImportExtensionGlob = `?(${consideredExtensions.join('|')})`;
-                                    const posibleImports = [...glob(`./${id}${posibleImportExtensionGlob}`)];
-                                    if (posibleImports.length === 0) return;
-                                    const resolvedImport = path.resolve(
-                                        selectImportFromPosibleImports(posibleImports, consideredExtensions),
-                                    );
-                                    try {
-                                        const indexfile = glob(
-                                            `${resolvedImport}/index?(${consideredExtensions.join('|')})`
-                                        )[0];
-                                        await fs.stat(path.join(indexfile));
-                                        return indexfile;
-                                    } catch {
-                                        return resolvedImport;
-                                    }
-                                } catch {}
-                            },
-                            name: 'typescript:import-from-base',
-                            enforce: 'pre'
-                        }
+                        viteTsPathWithMultyIndex()
+                        // {
+                        //     resolveId(id, importer, options) {
+                        //         if(id === "blitz" && !options.ssr) return resolve.sync("blitz/dist/index-browser.mjs")
+                        //     },
+                        //     enforce: "pre",
+                        //     name: "blitz:let-blitz-load-on-frontend"
+                        // },
+                        // {
+                        //     async resolveId(id) {
+                        //         if (id.startsWith('./') || id.startsWith('/')) return;
+                        //         try {
+                        //             const posibleImportExtensionGlob = `?(${consideredExtensions.join('|')})`;
+                        //             const posibleImports = [...glob(`./${id}${posibleImportExtensionGlob}`)];
+                        //             if (posibleImports.length === 0) return;
+                        //             const resolvedImport = path.resolve(
+                        //                 selectImportFromPosibleImports(posibleImports, consideredExtensions),
+                        //             );
+                        //             try {
+                        //                 const indexfile = glob(
+                        //                     `${resolvedImport}/index?(${consideredExtensions.join('|')})`
+                        //                 )[0];
+                        //                 await fs.stat(path.join(indexfile));
+                        //                 return indexfile;
+                        //             } catch {
+                        //                 return resolvedImport;
+                        //             }
+                        //         } catch {}
+                        //     },
+                        //     name: 'typescript:import-from-base',
+                        //     enforce: 'pre'
+                        // }
                     ]
                 }
             }
