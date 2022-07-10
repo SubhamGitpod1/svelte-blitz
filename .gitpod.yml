@@ -2,4 +2,4 @@ tasks:
   - init: |
       . ./start.sh
     command: |
-      echo 'TODO: start app'
+      . ./start.sh

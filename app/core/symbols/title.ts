@@ -1,2 +1,3 @@
 import typedSymbol from "typedSymbol";
-export default typedSymbol<string>("title")
+import type {Writable} from "svelte/store"
+export default typedSymbol<Writable<string>>("title")

@@ -11,6 +11,7 @@
 <script lang="ts">
 	let title = writable("blitz")
 	setContext(Title, title)
+	title.subscribe(console.log)
 </script>
 
 <svelte:head>

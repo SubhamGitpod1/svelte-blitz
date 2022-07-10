@@ -59,7 +59,20 @@ const getViteValue= {
  * @returns 
  */
 export function createConfig(config) {
-    const consideredExtensions = config.consideredExtensions ?? ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.svelte', '.json']
+    const consideredExtensions = config.consideredExtensions ?? [
+        '.ts', 
+        '.tsx', 
+        '.js', 
+        '.jsx', 
+        '.mjs', 
+        '.cjs', 
+        '.svelte', 
+        '.json',
+        '.png',
+        '.jpeg',
+        '.ico',
+        '.svg',
+    ]
     return {
         ...config,
         kit: {
@@ -109,7 +122,10 @@ export function createConfig(config) {
                             name: 'blitz:server-loader',
                             enforce: 'pre'
                         },
-                        viteTsPathWithMultyIndex()
+                        viteTsPathWithMultyIndex({
+                            moduleResolution: "classic",
+                            extensions: consideredExtensions
+                        })
                         // {
                         //     resolveId(id, importer, options) {
                         //         if(id === "blitz" && !options.ssr) return resolve.sync("blitz/dist/index-browser.mjs")
