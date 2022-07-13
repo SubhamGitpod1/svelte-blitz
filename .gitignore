@@ -8,4 +8,4 @@ node_modules
 !.env.example
 .vercel
 .output
-node_modules
+vite-ts-path-with-multy-index-support/node_modules

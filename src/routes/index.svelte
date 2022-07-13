@@ -10,6 +10,7 @@
 </script>
 <script lang="ts">
     import {getContext} from "svelte-typed-context"
+    import {z} from "zod"
     import logo from "static/logo.png"
     import Title from "app/core/symbols/title"
     import Form from "app/core/components/Form.svelte"
@@ -20,9 +21,6 @@
     const title = getContext(Title)
     $title = "Home"
 </script>
-<Form>
-    <TextInput name="a" type="password"/>
-</Form>
 <div class="container">
     <main>
         <div class="logo">
