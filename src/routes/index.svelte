@@ -10,18 +10,18 @@
 </script>
 <script lang="ts">
     import {getContext} from "svelte-typed-context"
-    import {z} from "zod"
     import logo from "static/logo.png"
     import Title from "app/core/symbols/title"
-    import Form from "app/core/components/Form.svelte"
-    import TextInput from "app/core/components/TextInput.svelte"
+    import LoginForm from "app/auth/components/LoginForm.svelte"
 
     export let user: Awaited<ReturnType<typeof getCurrentUser>>
 
     const title = getContext(Title)
     $title = "Home"
 </script>
+
 <div class="container">
+     <LoginForm />
     <main>
         <div class="logo">
             <img src={logo} alt="blitz logo" width="256px" height="118px">
@@ -29,7 +29,7 @@
         <p>
             <strong>Congrats!</strong> Your app is ready, including user sign-up and log-in.
         </p>
-        <div class="buttons" style="margin-top: 1rem; margin-bottom: 1rem;">
+         <div class="buttons" style="margin-top: 1rem; margin-bottom: 1rem;">
             {#if user != null}
             <button
             class="button small"

@@ -2,10 +2,16 @@ import type {Writable} from "svelte/store"
 import {getContext} from "svelte-typed-context"
 import FormData, {type FormDataType} from "app/core/symbols/formData"
 
-export default function setValue(Value: Writable<string | number | FormDataType>, key: string) {
+export default function setValue(Value: Writable<string | number | FormDataType | null>, key: string) {
     const formData = getContext(FormData)
     Value.subscribe(value => {
-        formData?.update(formData=> ({
+        if(value == null) return formData?.update(formData => {
+            delete formData[key]
+            return formData
+        })
+        console.log(key, value)
+
+        formData?.update(formData => ({
             ...formData,
             [key]: value
         }))

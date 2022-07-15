@@ -3,17 +3,31 @@
     import {writable} from "svelte/store"
     import {createEventDispatcher} from "svelte"
     import {type ZodObject, z} from "zod"
+    import J$ from "jquery"
     import type keyofType from "keyofType"
     import FormError from "app/core/symbols/FormError"
     import setValue from "app/core/hooks/setValue"
     import Schema from "app/core/symbols/Schema"
 
+
+    import Error from "app/core/components/Error.svelte"
+    export let errorContainerClass = "error"
+    export let errorElementClass = ""
+    export let errorListContainerClass = ""
+    export let errorContainerStyle = ""
+    export let errorElementStyle = ""
+    export let errorListContainerStyle = ""
+
     type T = $$Generic<ZodObject<any, any>>
     const dispatch = createEventDispatcher<{
-        blur: null
+        blur: null,
+        error: {
+            errors: string[]
+        }
     }>()
 
     export let value: string | null = null;
+    export let allowEmpty = false
     export let name: keyofType<z.infer<T>, string>
     $: Name = name as string
     export let schema: T = z.object({
@@ -27,21 +41,28 @@
     export let containerClass = ""
     export let labelStyle = ""
     export let labelClass = ""
+    export let persistErrorOnInput = false
     let className: string = ""
     export {className as class}
     let errors = [] as string[]
     const formError = getContext(FormError)
     $: errors = $formError?.[name]?._errors ?? []
-    const Value = writable<string>(value ?? "")
+    const Value = writable<string | null>(value )
+    $: $Value = allowEmpty ? ($Value ?? "") : ($Value?.length ?? 0) < 1 ? null : $Value
     setValue(Value, id as string)
     $: value = $Value
 
     $: inputSchema = getContext(Schema)?.shape[name] ?? schema.shape[name]
 
-    function blur(e: Event) {
+    function blur(e: FocusEvent & {currentTarget: EventTarget & HTMLInputElement}) {
         dispatch("blur")
         const safeParseOutput = inputSchema.safeParse(value)
-        if(safeParseOutput.success) return
+        if(safeParseOutput.success) {
+            formError?.update(formError => {
+                delete formError[Name]
+                return formError
+            })
+        }
         e.preventDefault()
         errors = safeParseOutput.error.format()._errors
         $formError = {
@@ -50,13 +71,19 @@
                 _errors: errors
             }
         } as typeof $formError
+        dispatch("error", {errors})
+        persistErrorOnInput || J$(e.currentTarget).one("input", () => formError?.update(formError => {
+                (delete formError[Name] || true) || formError
+                return formError
+        }))
+
     }
 
     function setTypeAction(node: HTMLInputElement) {
         node.type = type
     }
 </script>
-<div style={containerStyle} class={containerClass}>
+<div style={containerStyle} class="input-container {containerClass}">
     <label for={id} style={labelStyle} class={labelClass}>
         <slot>{Name}</slot>
     </label>
@@ -77,22 +104,25 @@
         on:dblclick
         on:click
     >
-    {#if errors.length > 0}
-        <div class="error">
-            <ul>
-                {#each errors as error}
-                    <li>{error}</li>
-                {/each}
-            </ul>
-        </div>
-    {/if}
+
+    <Error 
+    {errors}
+    container-class={errorContainerClass}
+    container-style={errorContainerStyle}
+    element-style={errorElementStyle}
+    element-class={errorElementClass}
+    list-error-container-class={errorListContainerClass}
+    list-error-container-style={errorListContainerStyle}
+    />
 </div>
 
+
 <style lang="sass">
-    .error
-        background-color: red
-        border-radius: 0 1em 1em 1em
-        padding: 0.2em 0.4em 0.2em 0
-        ul
+    .input-container 
+        :global(.error)
+            background-color: red
+            border-radius: 0 1em 1em 1em
+            padding: 0.2em 0.4em 0.2em 0
+        & :global(.error ul), & :global(.error p)
             margin: 0.2em
 </style>

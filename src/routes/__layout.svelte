@@ -3,7 +3,6 @@
 	import Title from "app/core/symbols/title"
 	import {setContext} from "svelte"
 	import {writable} from "svelte/store"
-	import Header from '$lib/header/Header.svelte';
 
 	export const load = loadWithBlitz(() => ({}))
 	console.log(import.meta.env.MODE)
