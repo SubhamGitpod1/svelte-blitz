@@ -2,11 +2,13 @@
     import {invoke} from "@blitzjs/sveltekit/rpc"
     import getCurrentUser from "app/users/queries/getCurrentUser"
     import type {Load} from ".svelte-kit/types/src/routes/__types/index"
-    export const load: Load = async () => ({
+    export const load: Load = async () => {
+        return ({
         props: {
             user: await invoke(getCurrentUser, null)
         }
-    })
+        })
+    }
 </script>
 <script lang="ts">
     import {getContext} from "svelte-typed-context"
@@ -21,7 +23,6 @@
 </script>
 
 <div class="container">
-     <LoginForm />
     <main>
         <div class="logo">
             <img src={logo} alt="blitz logo" width="256px" height="118px">

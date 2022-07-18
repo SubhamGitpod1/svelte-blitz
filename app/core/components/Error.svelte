@@ -6,7 +6,6 @@
     export let containerStyle = ""
     export let elementStyle = ""
     export let listErrorContainerStyle = ""
-    $: console.log(errors)
 </script>
 
 {#if (errors?.length ?? 0) > 0}

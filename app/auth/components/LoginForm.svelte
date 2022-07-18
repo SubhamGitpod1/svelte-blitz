@@ -7,12 +7,12 @@
     import Form from "app/core/components/Form.svelte";
     import type {FormDataType} from "app/core/symbols/formData"
     import type FormErrors from "app/core/types/FormErrors"
-    // import login from "app/auth/mutations/login"
+    import login from "app/auth/mutations/login"
     import { Login } from "app/auth/validations"
 
     const dispatch = createEventDispatcher<{
         success: {
-            // user: PromiseReturnType<typeof login>
+            user: PromiseReturnType<typeof login>
         }
     }>()
     const submit = async (e: CustomEvent<{
@@ -21,9 +21,10 @@
     }> & {currentTarget: EventTarget | null}) => {
         const formData = e.detail.formData
         try {
-            // const user = await invoke(login, formData)
-            // dispatch("success", user)
+            const user = await invoke(login, formData)
+            dispatch("success", user)
         } catch(error: any) {
+            console.log(error)
             if(error instanceof AuthenticationError) return e.detail.setError(
                 {_errors: ["Sorry, those credentials are invalid"]}
             )

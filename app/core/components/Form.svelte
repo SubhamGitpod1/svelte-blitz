@@ -18,7 +18,6 @@
     export let errorListContainerStyle = ""
 
     type T = $$Generic<ZodObject<any, any>>
-    console.log($$slots)
     
     interface $$Slots {
         default: {
@@ -44,14 +43,18 @@
             setError(formErrors) {
                 if(formErrors._errors === undefined) formErrors._errors = []
                 $error = formErrors as typeof $error
+                let runNumber = 0
                 const unsubscribe = formData.subscribe(() => {
+                    if(runNumber == 0) return ++runNumber
                     $error = {_errors: []}
                     unsubscribe()
                 })
             }
         })
         $error = safeParsedOutput.error.format()
+        let runNumber = 0
         const unsubscribe = formData.subscribe(() => {
+            if(runNumber == 0) return ++runNumber
             $error = {_errors: []}
             unsubscribe()
         })
@@ -61,32 +64,24 @@
     setContext(FormError, error)
     setContext(Schema, schema)
 </script>
-<form on:submit|preventDefault={onSubmit}>
+<form on:submit|preventDefault={onSubmit} class="better-form">
     <Error 
         errors={$error._errors}
-        container-class={errorContainerClass}
-        container-style={errorContainerStyle}
-        element-style={errorElementStyle}
-        element-class={errorElementClass}
-        list-error-container-class={errorListContainerClass}
-        list-error-container-style={errorListContainerStyle}
+        containerClass={errorContainerClass}
+        containerStyle={errorContainerStyle}
+        elementStyle={errorElementStyle}
+        elementClass={errorElementClass}
+        listErrorContainerClass={errorListContainerClass}
+        listErrorContainerStyle={errorListContainerStyle}
     />
-    {#if $error._errors?.length > 0}
-        <div class="error">
-            <ul>
-                {#each $error._errors as error}
-                    <li>{error}</li>
-                {/each}
-            </ul>
-        </div>
-    {/if}
     <slot schema={schema}></slot>
 </form>
 <style lang="sass">
-    .error
-        background-color: red
-        border-radius: 1em
-        padding: 0.2em 0.4em 0.2em 0
-        ul
+    .better-form 
+        :global(.error)
+            background-color: red
+            border-radius: 1em
+            padding: 0.2em 0.4em 0.2em 0
+        :global(ul)
             margin: 0.2em
 </style>

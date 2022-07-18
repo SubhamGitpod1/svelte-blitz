@@ -57,8 +57,9 @@
     function blur(e: FocusEvent & {currentTarget: EventTarget & HTMLInputElement}) {
         dispatch("blur")
         const safeParseOutput = inputSchema.safeParse(value)
+        console.log(safeParseOutput)
         if(safeParseOutput.success) {
-            formError?.update(formError => {
+            return formError?.update(formError => {
                 delete formError[Name]
                 return formError
             })
@@ -107,12 +108,12 @@
 
     <Error 
     {errors}
-    container-class={errorContainerClass}
-    container-style={errorContainerStyle}
-    element-style={errorElementStyle}
-    element-class={errorElementClass}
-    list-error-container-class={errorListContainerClass}
-    list-error-container-style={errorListContainerStyle}
+    containerClass={errorContainerClass}
+    containerStyle={errorContainerStyle}
+    elementStyle={errorElementStyle}
+    elementClass={errorElementClass}
+    listErrorContainerClass={errorListContainerClass}
+    listErrorContainerStyle={errorListContainerStyle}
     />
 </div>
 

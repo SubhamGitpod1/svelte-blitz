@@ -9,7 +9,6 @@ export default function setValue(Value: Writable<string | number | FormDataType 
             delete formData[key]
             return formData
         })
-        console.log(key, value)
 
         formData?.update(formData => ({
             ...formData,

@@ -5,7 +5,6 @@
 	import {writable} from "svelte/store"
 
 	export const load = loadWithBlitz(() => ({}))
-	console.log(import.meta.env.MODE)
 </script>
 <script lang="ts">
 	let title = writable("blitz")

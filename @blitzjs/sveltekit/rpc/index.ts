@@ -1,9 +1,17 @@
-import { type Ctx, isClient } from "blitz";
+import { type Ctx, isClient, AuthenticationError, CSRFTokenMismatchError, AuthorizationError, NotFoundError, RedirectError } from "blitz";
 import {invoke as blitzInvoke} from "../../rpc/dist/index-browser.mjs"
 import EventEmitter from "events"
 import type { Load } from "@sveltejs/kit";
 declare global {
     var contextEmitter: EventEmitter | null
+}
+
+const blitzErrors = {
+    AuthenticationError,
+    CSRFTokenMismatchError,
+    AuthorizationError,
+    NotFoundError, 
+    RedirectError
 }
 
 if(!isClient) globalThis.contextEmitter = new EventEmitter();
@@ -31,7 +39,14 @@ export async function setContext(context: Ctx) {
 }
 
 export async function invoke<T extends (...args: any[]) => any>(fn: T, argument: Parameters<T>[0]) {
-    if(isClient) return await blitzInvoke(fn, argument)
+    if(isClient) try {return await blitzInvoke(fn, argument)}
+    catch(error: any) {
+        if(error.name in blitzErrors) {
+            if(error.url == null) throw new (blitzErrors as any)[error.name]()
+            throw new (blitzErrors as any)[error.name](error.url)
+        }
+        throw error
+    }
     const context = await getContext()
     return await fn(argument, context)
 }

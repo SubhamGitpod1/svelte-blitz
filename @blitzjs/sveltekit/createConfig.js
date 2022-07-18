@@ -115,7 +115,6 @@ export function createConfig(config) {
                             async transform(code, id, options) {
                                 if (!options?.ssr || !(id.includes('[...blitz].js') || id.includes('[...blitz].ts')))
                                     return;
-                                console.log(options, id)
                                 const resolvers = await collectResolvers(process.cwd(), ['ts', 'js']);
                                 return await transformBlitzRpcServer(code, id, process.cwd(), resolvers);
                             },
