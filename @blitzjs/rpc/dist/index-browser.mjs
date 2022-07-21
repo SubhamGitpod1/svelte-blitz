@@ -27,6 +27,8 @@ export { dehydrate } from 'react-query/lib/hydration/index.js';
 import { normalizePathTrailingSlash } from 'next/dist/client/normalize-trailing-slash.js';
 import { addBasePath } from 'next/dist/shared/lib/router/router.js';
 
+const __dirname = import.meta.url
+
 const requestIdleCallback =
 	(typeof self !== 'undefined' &&
 		self.requestIdleCallback &&
@@ -187,6 +189,7 @@ function __internal_buildRpcClient({ resolverName, resolverType, routePath }) {
 				signal: controller.signal
 			})
 			.then(async (response) => {
+				console.log(response)
 				debug('Received request for', routePath);
 				if (response.headers) {
 					if (response.headers.get(HEADER_PUBLIC_DATA_TOKEN)) {
@@ -212,6 +215,7 @@ function __internal_buildRpcClient({ resolverName, resolverType, routePath }) {
 					const error = new Error(response.statusText);
 					error.statusCode = response.status;
 					error.path = routePath;
+					console.log(response)
 					error.stack = null;
 					throw error;
 				} else {
@@ -228,10 +232,11 @@ function __internal_buildRpcClient({ resolverName, resolverType, routePath }) {
 							json: payload.error,
 							meta: payload.meta?.error
 						});
+						console.log(payload)
 						if (error.name === 'AuthenticationError' && getPublicDataStore().getData().userId) {
 							getPublicDataStore().clear();
 						}
-						const prismaError = error.message.match(/invalid.*prisma.*invocation/i);
+						const prismaError = error.message?.match(/invalid.*prisma.*invocation/i);
 						if (prismaError && !('code' in error)) {
 							error = new Error(prismaError[0]);
 							error.statusCode = 500;

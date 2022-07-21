@@ -19,7 +19,7 @@ export const getRequestResponse = async (event: RequestEvent, app?: Express) => 
 		app,
 		url: event.request.url,
 		headers,
-		cookie: cookie.parse(event.request.headers.get('Cookie') ?? ''),
+		// cookie: cookie.parse(event.request.headers.get('Cookie') ?? ''),
 		query: Object.keys(event.params).reduce(
 			(params, key) => ({
 				...params,
@@ -116,6 +116,7 @@ export default function createHandler(handler: NextApiHandler) {
 					(res as any)[key] = express.response[key].bind(res);
 				});
 				res.end = function (this: Response, chunk: any, encoding: any, callback: any) {
+					console.log(res.getHeaders())
 					resolve({
 						status: res.statusCode,
 						body: chunk,
@@ -127,7 +128,9 @@ export default function createHandler(handler: NextApiHandler) {
 			})
 		);
 		app.use(handler as any);
+		console.log(app)
 		app(request, response);
-		return result;
+		// console.log(await result)
+		return await result;
 	};
 }

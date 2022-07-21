@@ -14,7 +14,6 @@
     import {getContext} from "svelte-typed-context"
     import logo from "static/logo.png"
     import Title from "app/core/symbols/title"
-    import LoginForm from "app/auth/components/LoginForm.svelte"
 
     export let user: Awaited<ReturnType<typeof getCurrentUser>>
 

@@ -16,5 +16,11 @@ export const getSessionWithBlitz = (getSession: GetSession): GetSession => {
 
 export const setupBlitzServer = (...args: Parameters<typeof setupBlitzServerNext>) => {
     const returned = setupBlitzServerNext(...args)
+    const api: typeof returned.api = (handler) => {
+        return async (req, res) => {
+            await getBlitzSession(req, res)
+            return await returned.api(handler)(req, res)
+        }
+    }
     return {...returned, getSessionWithBlitz}
 }

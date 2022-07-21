@@ -1,21 +1,27 @@
 import db from "db"
 import { SecurePassword } from "@blitzjs/auth"
-import { Role } from "types"
+import type { Role } from "types"
 
-export default async function signup(input, ctx) {
+export default async function signup(input: any, ctx: any) {
   const blitzContext = ctx
 
   const hashedPassword = await SecurePassword.hash((input.password as string) || "test-password")
   const email = (input.email as string) || "test" + Math.random() + "@test.com"
-  const user = await db.user.create({
-    data: { email, hashedPassword, role: "user" },
-    select: { id: true, name: true, email: true, role: true },
-  })
-
-  await blitzContext.session.$create({
-    userId: user.id,
-    role: user.role as Role,
-  })
+  try {
+    const user = await db.user.create({
+      data: { email, hashedPassword, role: "user" },
+      select: { id: true, name: true, email: true, role: true },
+    })
+    await blitzContext.session.$create({
+      userId: user.id,
+      role: user.role as Role,
+    })
+  }
+  catch(error: any) {
+    console.log(error.code)
+    throw error
+  }
+  
 
   return { userId: blitzContext.session.userId, ...user, email: input.email }
 }

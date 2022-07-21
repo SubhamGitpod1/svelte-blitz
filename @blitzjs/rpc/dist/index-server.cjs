@@ -1,17 +1,23 @@
-// @ts-nocheck
-import { assert, baseLogger, prettyMs, newLine } from 'blitz';
-import { deserialize, serialize } from 'superjson';
-import chalk from 'chalk/source/index.js';
-import path from 'path';
-const {resolve} = path
-export { BlitzRpcPlugin, __internal_buildRpcClient, getInfiniteQueryKey, getQueryClient, getQueryKey, invalidateQuery, invoke, invokeWithCtx, normalizeApiRoute, setQueryData, useInfiniteQuery, useMutation, usePaginatedQuery, useQuery } from './index-browser.mjs';
-export { QueryClient, useQueryErrorResetBoundary } from 'react-query';
-export { dehydrate } from 'react-query/lib/hydration/index.js';
-import '@blitzjs/auth';
-import 'next/router.js';
-import 'next/dist/client/normalize-trailing-slash.js';
-import 'next/dist/shared/lib/router/router.js';
-const __dirname = import.meta.url
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+const blitz = require('blitz');
+const superjson = require('superjson');
+const chalk = require('chalk');
+const path = require('path');
+const indexBrowser = require('./index-browser.cjs');
+const reactQuery = require('react-query');
+const hydration = require('react-query/hydration');
+require('@blitzjs/auth');
+require('next/router');
+require('next/dist/client/normalize-trailing-slash');
+require('next/dist/shared/lib/router/router');
+
+function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e["default"] : e; }
+
+const chalk__default = /*#__PURE__*/_interopDefaultLegacy(chalk);
+
 function isResultWithContext(x) {
   return typeof x === "object" && x !== null && "ctx" in x && x.__blitz === true;
 }
@@ -57,11 +63,11 @@ function isObject(value) {
   return typeof value === "object" && value !== null;
 }
 function getGlobalObject(key, defaultValue) {
-  assert(key.startsWith("__internal_blitz"), "unsupported key");
+  blitz.assert(key.startsWith("__internal_blitz"), "unsupported key");
   if (typeof global === "undefined") {
     return defaultValue;
   }
-  assert(isObject(global), "not an object");
+  blitz.assert(isObject(global), "not an object");
   return global[key] = global[key] || defaultValue;
 }
 const g = getGlobalObject("__internal_blitzRpcResolverFiles", {
@@ -76,8 +82,8 @@ function __internal_addBlitzRpcResolver(routePath, resolver) {
   return resolver;
 }
 const dir = __dirname + (() => "")();
-const loaderServer = resolve(dir, "./loader-server.cjs");
-const loaderClient = resolve(dir, "./loader-client.cjs");
+const loaderServer = path.resolve(dir, "./loader-server.cjs");
+const loaderClient = path.resolve(dir, "./loader-client.cjs");
 async function getResolverMap() {
   {
     const resolverFilesLoaded = loadBlitzRpcResolverFilesWithInternalMechanism();
@@ -89,8 +95,8 @@ async function getResolverMap() {
 function rpcHandler(config) {
   return async function handleRpcRequest(req, res, ctx) {
     const resolverMap = await getResolverMap();
-    assert(resolverMap, "No query or mutation resolvers found");
-    assert(Array.isArray(req.query.blitz), "It seems your Blitz RPC endpoint file is not named [[...blitz]].(jt)s. Please ensure it is");
+    blitz.assert(resolverMap, "No query or mutation resolvers found");
+    blitz.assert(Array.isArray(req.query.blitz), "It seems your Blitz RPC endpoint file is not named [[...blitz]].(jt)s. Please ensure it is");
     const relativeRoutePath = req.query.blitz.join("/");
     const routePath = "/" + relativeRoutePath;
     const loadableResolver = resolverMap[routePath];
@@ -101,11 +107,11 @@ function rpcHandler(config) {
     if (!resolver) {
       throw new Error("No default export for resolver path: " + routePath);
     }
-    const log = baseLogger().getChildLogger({
+    const log = blitz.baseLogger().getChildLogger({
       prefix: [relativeRoutePath + "()"]
     });
-    const customChalk = new chalk.Instance({
-      level: log.settings.type === "json" ? 0 : chalk.level
+    const customChalk = new chalk__default.Instance({
+      level: log.settings.type === "json" ? 0 : chalk__default.level
     });
     if (req.method === "HEAD") {
       res.status(200).end();
@@ -121,7 +127,7 @@ function rpcHandler(config) {
         return;
       }
       try {
-        const data = deserialize({
+        const data = superjson.deserialize({
           json: req.body.params,
           meta: req.body.meta?.params
         });
@@ -131,7 +137,7 @@ function rpcHandler(config) {
         const resolverDuration = Date.now() - startTime;
         log.debug(customChalk.dim("Result:"), result ? result : JSON.stringify(result));
         const serializerStartTime = Date.now();
-        const serializedResult = serialize(result);
+        const serializedResult = superjson.serialize(result);
         const nextSerializerStartTime = Date.now();
         res.blitzResult = result;
         res.json({
@@ -141,23 +147,22 @@ function rpcHandler(config) {
             result: serializedResult.meta
           }
         });
-        log.debug(customChalk.dim(`Next.js serialization:${prettyMs(Date.now() - nextSerializerStartTime)}`));
+        log.debug(customChalk.dim(`Next.js serialization:${blitz.prettyMs(Date.now() - nextSerializerStartTime)}`));
         const serializerDuration = Date.now() - serializerStartTime;
         const duration = Date.now() - startTime;
-        log.info(customChalk.dim(`Finished: resolver:${prettyMs(resolverDuration)} serializer:${prettyMs(serializerDuration)} total:${prettyMs(duration)}`));
-        newLine();
+        log.info(customChalk.dim(`Finished: resolver:${blitz.prettyMs(resolverDuration)} serializer:${blitz.prettyMs(serializerDuration)} total:${blitz.prettyMs(duration)}`));
+        blitz.newLine();
         return;
       } catch (error) {
         if (error._clearStack) {
           delete error.stack;
         }
         log.error(error);
-        newLine();
+        blitz.newLine();
         if (!error.statusCode) {
           error.statusCode = 500;
         }
-        const serializedError = serialize({...error});
-        console.log({...error}, serializedError);
+        const serializedError = superjson.serialize(error);
         res.json({
           result: null,
           error: serializedError.json,
@@ -175,4 +180,26 @@ function rpcHandler(config) {
   };
 }
 
-export { __internal_addBlitzRpcResolver, loadBlitzRpcResolverFilesWithInternalMechanism, loaderClient, loaderServer, resolver, rpcHandler };
+exports.BlitzRpcPlugin = indexBrowser.BlitzRpcPlugin;
+exports.__internal_buildRpcClient = indexBrowser.__internal_buildRpcClient;
+exports.getInfiniteQueryKey = indexBrowser.getInfiniteQueryKey;
+exports.getQueryClient = indexBrowser.getQueryClient;
+exports.getQueryKey = indexBrowser.getQueryKey;
+exports.invalidateQuery = indexBrowser.invalidateQuery;
+exports.invoke = indexBrowser.invoke;
+exports.invokeWithCtx = indexBrowser.invokeWithCtx;
+exports.normalizeApiRoute = indexBrowser.normalizeApiRoute;
+exports.setQueryData = indexBrowser.setQueryData;
+exports.useInfiniteQuery = indexBrowser.useInfiniteQuery;
+exports.useMutation = indexBrowser.useMutation;
+exports.usePaginatedQuery = indexBrowser.usePaginatedQuery;
+exports.useQuery = indexBrowser.useQuery;
+exports.QueryClient = reactQuery.QueryClient;
+exports.useQueryErrorResetBoundary = reactQuery.useQueryErrorResetBoundary;
+exports.dehydrate = hydration.dehydrate;
+exports.__internal_addBlitzRpcResolver = __internal_addBlitzRpcResolver;
+exports.loadBlitzRpcResolverFilesWithInternalMechanism = loadBlitzRpcResolverFilesWithInternalMechanism;
+exports.loaderClient = loaderClient;
+exports.loaderServer = loaderServer;
+exports.resolver = resolver;
+exports.rpcHandler = rpcHandler;

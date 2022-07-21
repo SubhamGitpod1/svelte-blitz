@@ -35,7 +35,7 @@
     }) as T
     export let id = name as string
     $: id = name as string
-    export let type: "text" | "password" | "email" = "text"
+    export let type: "text" | "password" = "text"
     export let style: string = ""
     export let containerStyle = ""
     export let containerClass = ""

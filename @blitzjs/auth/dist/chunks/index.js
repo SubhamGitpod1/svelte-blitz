@@ -12,6 +12,7 @@ import {
 	createClientPlugin,
 	deleteCookie
 } from 'blitz/dist/index-browser.mjs';
+const __dirname = import.meta.url
 import _debug from 'debug';
 const TOKEN_SEPARATOR = ';';
 const HANDLE_SEPARATOR = ':';

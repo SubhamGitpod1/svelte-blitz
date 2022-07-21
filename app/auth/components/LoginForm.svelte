@@ -38,7 +38,7 @@
     <h1>login</h1>
     <Form schema={Login} on:submit={submit} let:schema>
         <TextInput {schema} name="email" />
-        <TextInput {schema} name="password" />
+        <TextInput {schema} name="password" type="password" />
         <div>
             <a href="./forgot-password">Forgot your password?</a>
         </div>
