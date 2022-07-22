@@ -41,7 +41,6 @@ export async function setContext(context: Ctx) {
 export async function invoke<T extends (...args: any[]) => any>(fn: T, argument: Parameters<T>[0]) {
     if(isClient) try {return await blitzInvoke(fn, argument)}
     catch(error: any) {
-        console.log(error)
         if(error.name in blitzErrors) {
             if(error.url == null) throw new (blitzErrors as any)[error.name]()
             throw new (blitzErrors as any)[error.name](error.url)

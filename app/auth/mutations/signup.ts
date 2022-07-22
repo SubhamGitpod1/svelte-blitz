@@ -7,20 +7,14 @@ export default async function signup(input: any, ctx: any) {
 
   const hashedPassword = await SecurePassword.hash((input.password as string) || "test-password")
   const email = (input.email as string) || "test" + Math.random() + "@test.com"
-  try {
-    const user = await db.user.create({
-      data: { email, hashedPassword, role: "user" },
-      select: { id: true, name: true, email: true, role: true },
-    })
-    await blitzContext.session.$create({
-      userId: user.id,
-      role: user.role as Role,
-    })
-  }
-  catch(error: any) {
-    console.log(error.code)
-    throw error
-  }
+  const user = await db.user.create({
+    data: { email, hashedPassword, role: "user" },
+    select: { id: true, name: true, email: true, role: true },
+  })
+  await blitzContext.session.$create({
+    userId: user.id,
+    role: user.role as Role,
+  })
   
 
   return { userId: blitzContext.session.userId, ...user, email: input.email }

@@ -24,7 +24,6 @@
             const user = await invoke(login, formData)
             dispatch("success", user)
         } catch(error: any) {
-            console.log(error)
             if(error instanceof AuthenticationError) return e.detail.setError(
                 {_errors: ["Sorry, those credentials are invalid"]}
             )

@@ -8,6 +8,6 @@
     $title = "Log In"
 </script>
 
-<LoginForm on:success={(e) => {
+<LoginForm on:success={() => {
     goto("/")
 }} />

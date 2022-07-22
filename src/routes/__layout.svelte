@@ -7,9 +7,12 @@
 	export const load = loadWithBlitz(() => ({}))
 </script>
 <script lang="ts">
+	import {dev} from "$app/env"
+
 	let title = writable("blitz")
 	setContext(Title, title)
-	title.subscribe(console.log)
+	
+	if(dev) title.subscribe(console.log)
 </script>
 
 <svelte:head>

@@ -6,7 +6,7 @@ import { ForgotPassword } from "../validations"
 
 const RESET_PASSWORD_TOKEN_EXPIRATION_IN_HOURS = 4
 
-export default resolver.pipe(resolver.zod(ForgotPassword), async ({ email }) => {
+export default resolver.pipe(resolver.zod(ForgotPassword), async ({ email }: {email: string}) => {
   // 1. Get the user
   const user = await db.user.findFirst({ where: { email: email.toLowerCase() } })
 

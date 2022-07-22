@@ -157,7 +157,6 @@ function rpcHandler(config) {
           error.statusCode = 500;
         }
         const serializedError = serialize({...error});
-        console.log({...error}, serializedError);
         res.json({
           result: null,
           error: serializedError.json,

@@ -11,11 +11,17 @@
     }
 </script>
 <script lang="ts">
+    import logout from "app/auth/mutations/logout"
     import {getContext} from "svelte-typed-context"
     import logo from "static/logo.png"
     import Title from "app/core/symbols/title"
 
     export let user: Awaited<ReturnType<typeof getCurrentUser>>
+
+        const logoutHandler = async () => {
+            await invoke(logout, null)
+            user = await invoke(getCurrentUser, null)
+        }
 
     const title = getContext(Title)
     $title = "Home"
@@ -33,6 +39,7 @@
             {#if user != null}
             <button
             class="button small"
+            on:click={logoutHandler}
             >
                 Logout
             </button>

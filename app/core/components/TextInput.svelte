@@ -57,7 +57,6 @@
     function blur(e: FocusEvent & {currentTarget: EventTarget & HTMLInputElement}) {
         dispatch("blur")
         const safeParseOutput = inputSchema.safeParse(value)
-        console.log(safeParseOutput)
         if(safeParseOutput.success) {
             return formError?.update(formError => {
                 delete formError[Name]

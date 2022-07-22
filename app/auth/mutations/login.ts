@@ -9,9 +9,7 @@ import { Login } from "../validations"
 export const authenticateUser = async (rawEmail: string, rawPassword: string) => {
   const { email, password } = Login.parse({ email: rawEmail, password: rawPassword })
   const user = await db.user.findFirst({ where: { email } })
-  console.log("login", user)
   if (!user) throw new AuthenticationError()
-  console.log("hello")
   const result = await SecurePassword.verify(user.hashedPassword, password)
 
   if (result === SecurePassword.VALID_NEEDS_REHASH) {
@@ -27,8 +25,6 @@ export const authenticateUser = async (rawEmail: string, rawPassword: string) =>
 export default resolver.pipe(resolver.zod<typeof Login>(Login), async ({ email, password }, ctx) => {
   // This throws an error if credentials are invalid
   const user = await authenticateUser(email, password)
-    console.log(user)
   await ctx.session.$create({ userId: user.id, role: user.role as Role })
-
   return user
 })

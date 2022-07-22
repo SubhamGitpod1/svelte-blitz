@@ -5,7 +5,7 @@
     import {Signup} from "app/auth/validations"
     import {invoke} from "@blitzjs/sveltekit/rpc"
     import {createEventDispatcher} from "svelte"
-import type { SubmitHandler } from "app/core/types/formEvents";
+    import type { SubmitHandler } from "app/core/types/formEvents";
 
     const dispatch = createEventDispatcher<{
         success: null
@@ -15,7 +15,6 @@ import type { SubmitHandler } from "app/core/types/formEvents";
             await invoke(signup, e.detail.formData)
             dispatch("success")
         } catch(error: any) {
-            console.log(error)
             if (error.code === "P2002" && error.meta?.target?.includes("email")) {
                 return e.detail.setError({
                     email: {
@@ -23,7 +22,8 @@ import type { SubmitHandler } from "app/core/types/formEvents";
                     }
                 })
             }
-            e.detail.setError({_errors: [error.toString()]})
+            (error.message)
+            e.detail.setError({_errors: [error.message ?? "Sorry, we had an unexpected error. Please try again."]})
         }
     }
 </script>
@@ -31,6 +31,6 @@ import type { SubmitHandler } from "app/core/types/formEvents";
 <h1>Create an Account</h1>
 <Form schema={Signup} on:submit={submit} let:schema>
     <TextInput {schema} name="email" />
-    <TextInput {schema} name="password" />
+    <TextInput {schema} name="password" type="password" />
     <button>Create Account</button>
 </Form>
