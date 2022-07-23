@@ -2,6 +2,7 @@ import { type Ctx, isClient, AuthenticationError, CSRFTokenMismatchError, Author
 import {invoke as blitzInvoke} from "../../rpc/dist/index-browser.mjs"
 import EventEmitter from "events"
 import type { Load } from "@sveltejs/kit";
+import {server} from "$app/env"
 declare global {
     var contextEmitter: EventEmitter | null
 }
@@ -35,6 +36,7 @@ export async function getContext() {
 }
 export async function setContext(context: Ctx) {
     if(isClient) return
+    await Context.next(context)
     return (await Context.next(context)).value
 }
 
@@ -55,8 +57,22 @@ export async function invoke<T extends (...args: any[]) => any>(fn: T, argument:
 
 export const loadWithBlitz = (load: Load): Load => {
     return async (...args: Parameters<Load>) => {
-        await setContext(eval((args[0].session as any)?.BlitzContext) as Ctx)
-        const loadReturn = await load(...args)
+        if(server) {
+            const {createRequest, createResponse} = await import("node-mocks-http")
+            const {default: cookie} = await import("cookie")
+            const {getSession} = await import("@blitzjs/auth")
+            const req = createRequest({
+                url: args[0].url.toString(),
+                headers: (args[0].session as any).headers,
+                cookies: cookie.parse((args[0].session as any).headers.cookie),
+                method: "GET"
+            })
+            const res = createResponse({req})
+            await getSession(req as any, res as any)
+            await setContext((res as any).blitzCtx)
+            const loadReturn = await load(...args)
+            return await load(...args)
+        }
         return await load(...args)
     }
 }

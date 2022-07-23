@@ -124,7 +124,73 @@ export function createConfig(config) {
                         viteTsPathWithMultyIndex({
                             moduleResolution: "classic",
                             extensions: consideredExtensions
-                        })
+                        }),
+                        {
+                            enforce: "pre",
+                            transform(code, id, options) {
+                                if(options?.ssr) {
+                                    const codeWithoutComent = code.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g,'')
+                                    let newCode = codeWithoutComent
+                                    let startIndexes = codeWithoutComent.match(
+                                        /if[\s\n]*\([\s\n]*(client|\![\s\n]*server)[\s\n]*\)/g
+                                    )?.map(
+                                        str => codeWithoutComent.indexOf(str)
+                                    ) ?? []
+                                    if(startIndexes.length < 1) return
+                                    for(let StartIndex of startIndexes) {
+                                        let startIndex = StartIndex
+                                        let startBracketIndex = codeWithoutComent.indexOf("{", startIndex)
+                                        let endBracketIndex = codeWithoutComent.indexOf("}", startIndex)
+                                        while(true) {
+                                            startBracketIndex = codeWithoutComent.indexOf("{", startBracketIndex + 1)
+                                            const newEndBracketIndex = codeWithoutComent.indexOf("}", endBracketIndex + 1)
+                                            if(
+                                                !(endBracketIndex > startBracketIndex 
+                                                && startBracketIndex > 0 
+                                                && newEndBracketIndex > 0)
+                                            ) break
+                                            endBracketIndex = newEndBracketIndex
+                                        }
+                                        newCode = newCode.replace(
+                                            codeWithoutComent.substring(startIndex, endBracketIndex + 1), 
+                                            ''
+                                        )
+                                    }
+
+                                    return newCode
+                                }
+
+                                const codeWithoutComent = code.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g,'')
+                                let newCode = codeWithoutComent
+                                let startIndexes = codeWithoutComent.match(
+                                    /if[\s\n]*\([\s\n]*(server|\![\s\n]*client)[\s\n]*\)/g
+                                )?.map(
+                                    str => codeWithoutComent.indexOf(str)
+                                ) ?? []
+                                if(startIndexes.length < 1) return
+                                for(let StartIndex of startIndexes) {
+                                    let startIndex = StartIndex
+                                    let startBracketIndex = codeWithoutComent.indexOf("{", startIndex)
+                                    let endBracketIndex = codeWithoutComent.indexOf("}", startIndex)
+                                    while(true) {
+                                        startBracketIndex = codeWithoutComent.indexOf("{", startBracketIndex + 1)
+                                        const newEndBracketIndex = codeWithoutComent.indexOf("}", endBracketIndex + 1)
+                                        if(
+                                            !(endBracketIndex > startBracketIndex 
+                                            && startBracketIndex > 0 
+                                            && newEndBracketIndex > 0)
+                                        ) break
+                                        endBracketIndex = newEndBracketIndex
+                                    }
+                                    newCode = newCode.replace(
+                                        codeWithoutComent.substring(startIndex, endBracketIndex + 1), 
+                                        ''
+                                    )
+                                }
+
+                                return newCode
+                            }
+                        }
                         // {
                         //     resolveId(id, importer, options) {
                         //         if(id === "blitz" && !options.ssr) return resolve.sync("blitz/dist/index-browser.mjs")

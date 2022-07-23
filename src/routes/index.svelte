@@ -16,7 +16,7 @@
     import logo from "static/logo.png"
     import Title from "app/core/symbols/title"
 
-    export let user: Awaited<ReturnType<typeof getCurrentUser>>
+    export let user: any //Awaited<ReturnType<typeof getCurrentUser>>
 
         const logoutHandler = async () => {
             await invoke(logout, null)
