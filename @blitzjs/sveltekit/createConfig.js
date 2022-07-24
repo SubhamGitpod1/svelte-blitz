@@ -1,4 +1,4 @@
-import fs from 'fs/promises';
+import fs from 'fs-extra';
 import _glob from 'glob';
 import path from 'path';
 // @ts-ignore
@@ -7,7 +7,7 @@ import { transformBlitzRpcResolverClient } from '../rpc/dist/loader-client.cjs';
 import { transformBlitzRpcServer, collectResolvers } from '../rpc/dist/loader-server.cjs';
 import polyfillNode from 'rollup-plugin-polyfill-node';
 import resolve from "resolve"
-import viteTsPathWithMultyIndex from "../../vite-ts-path-with-multy-index-support/lib/plugin/plugin.js"
+import viteTsPathWithMultyIndex, {resolveRootBareImport} from "../../vite-ts-path-with-multy-index-support/lib/plugin/plugin.js"
 // import type {Config} from "@sveltejs/kit"
 // import type {UserConfig} from "vite"
 // import type { MaybePromise } from '@sveltejs/kit/types/private';
@@ -20,6 +20,104 @@ import viteTsPathWithMultyIndex from "../../vite-ts-path-with-multy-index-suppor
  * @typedef {import("vite").UserConfig} UserConfig
  * @typedef {import("@sveltejs/kit").Config} Config
  */
+
+/**
+ * 
+ * @param {string} code 
+ * @param {boolean} ssr 
+ * @param {string[]} clientOnlyBools 
+ * @param {string[]} serverOnlyBools 
+ * @returns 
+ */
+function removeIfBlocks(code, ssr, clientOnlyBools = ["client"], serverOnlyBools = ["server"]) {
+    if(ssr) {
+        const codeWithoutComent = code.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g,'')
+        let newCode = codeWithoutComent
+        
+        let startIndexes = codeWithoutComent.match(
+            new RegExp(
+                `if[\\s\\n]*\\([\\s\\n]*(${
+                    clientOnlyBools.join("|")
+                }|\\![\\s\\n]*(${
+                    serverOnlyBools.join("|")
+                }))[\\s\\n]*\\)`,
+                "g"
+            )
+        )?.map(
+            str => codeWithoutComent.indexOf(str)
+        ) ?? []
+        if(startIndexes.length < 1) return
+        for(let StartIndex of startIndexes) {
+            let startIndex = StartIndex
+            let startBracketIndex = codeWithoutComent.indexOf("{", startIndex)
+            let endBracketIndex = codeWithoutComent.indexOf("}", startIndex)
+            while(true) {
+                startBracketIndex = codeWithoutComent.indexOf("{", startBracketIndex + 1)
+                const newEndBracketIndex = codeWithoutComent.indexOf("}", endBracketIndex + 1)
+                if(
+                    !(endBracketIndex > startBracketIndex 
+                    && startBracketIndex > 0 
+                    && newEndBracketIndex > 0)
+                ) break
+                endBracketIndex = newEndBracketIndex
+            }
+            newCode = newCode.replace(
+                codeWithoutComent.substring(startIndex, endBracketIndex + 1), 
+                ''
+            )
+        }
+
+        return newCode
+    }
+
+    const codeWithoutComent = code.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g,'')
+    let newCode = codeWithoutComent
+    let startIndexes = codeWithoutComent.match(
+        new RegExp(
+            `if[\\s\\n]*\\([\\s\\n]*(${
+                serverOnlyBools.join("|")
+            }|\\![\\s\\n]*(${
+                clientOnlyBools.join("|")
+            }))[\\s\\n]*\\)`,
+            "g"
+        )
+    )?.map(
+        str => codeWithoutComent.indexOf(str)
+    ) ?? []
+
+    if(startIndexes.length < 1) return
+    for(let StartIndex of startIndexes) {
+        let startIndex = StartIndex
+        let startBracketIndex = codeWithoutComent.indexOf("{", startIndex)
+        let endBracketIndex = codeWithoutComent.indexOf("}", startIndex)
+        while(true) {
+            startBracketIndex = codeWithoutComent.indexOf("{", startBracketIndex + 1)
+            const newEndBracketIndex = codeWithoutComent.indexOf("}", endBracketIndex + 1)
+            if(endBracketIndex < 0) return
+            if(
+                endBracketIndex < startBracketIndex 
+                || startBracketIndex < 0
+            ) break
+            endBracketIndex = newEndBracketIndex
+        }
+        newCode = newCode.replace(
+            codeWithoutComent.substring(startIndex, endBracketIndex + 1), 
+            ''
+        )
+    }
+    return newCode
+}
+
+/**
+ * 
+ * @param {string} code 
+ * @param {boolean} ssr 
+ * @returns 
+ */
+function removeServerClientBlock(code, ssr) {
+    return removeIfBlocks(code, ssr)
+}
+
 /**
  * 
  * @param {Array<string>} posibleImports 
@@ -55,11 +153,21 @@ const getViteValue= {
 
 /**
  * 
- * @param {(Config & {consideredExtensions?: Array<string>})} config 
+ * @param {(Config & {
+ *  blitz?: {
+ *      consideredExtensions?: Array<string>,
+ *      serverOnlyModules?: string[],
+ *      clientOnlyBools?: string[],
+ *      serverOnlyBools?: string[],
+ *  }
+ * })} config 
  * @returns 
  */
 export function createConfig(config) {
-    const consideredExtensions = config.consideredExtensions ?? [
+    const serverOnlyModules = config.blitz?.serverOnlyModules ?? ["node-mocks-http"]
+    const clientOnlyBools = config.blitz?.clientOnlyBools ?? ["client", "isClient"]
+    const serverOnlyBools = config.blitz?.serverOnlyBools ?? ["server", "isServer"]
+    const consideredExtensions = config.blitz?.consideredExtensions ?? [
         '.ts', 
         '.tsx', 
         '.js', 
@@ -121,107 +229,21 @@ export function createConfig(config) {
                             name: 'blitz:server-loader',
                             enforce: 'pre'
                         },
+                        {
+                            enforce: "pre",
+                            resolveId(id, importer, options) {
+                                if(options?.ssr || !options?.scan) return
+                                if(serverOnlyModules?.some(module => module === id)) return `\0${id}`
+                            },
+                            transform(code, id, options) {
+                                const newCode = removeIfBlocks(code, options?.ssr)
+                                if(newCode != null) return newCode
+                            }
+                        },
                         viteTsPathWithMultyIndex({
                             moduleResolution: "classic",
                             extensions: consideredExtensions
-                        }),
-                        {
-                            enforce: "pre",
-                            transform(code, id, options) {
-                                if(options?.ssr) {
-                                    const codeWithoutComent = code.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g,'')
-                                    let newCode = codeWithoutComent
-                                    let startIndexes = codeWithoutComent.match(
-                                        /if[\s\n]*\([\s\n]*(client|\![\s\n]*server)[\s\n]*\)/g
-                                    )?.map(
-                                        str => codeWithoutComent.indexOf(str)
-                                    ) ?? []
-                                    if(startIndexes.length < 1) return
-                                    for(let StartIndex of startIndexes) {
-                                        let startIndex = StartIndex
-                                        let startBracketIndex = codeWithoutComent.indexOf("{", startIndex)
-                                        let endBracketIndex = codeWithoutComent.indexOf("}", startIndex)
-                                        while(true) {
-                                            startBracketIndex = codeWithoutComent.indexOf("{", startBracketIndex + 1)
-                                            const newEndBracketIndex = codeWithoutComent.indexOf("}", endBracketIndex + 1)
-                                            if(
-                                                !(endBracketIndex > startBracketIndex 
-                                                && startBracketIndex > 0 
-                                                && newEndBracketIndex > 0)
-                                            ) break
-                                            endBracketIndex = newEndBracketIndex
-                                        }
-                                        newCode = newCode.replace(
-                                            codeWithoutComent.substring(startIndex, endBracketIndex + 1), 
-                                            ''
-                                        )
-                                    }
-
-                                    return newCode
-                                }
-
-                                const codeWithoutComent = code.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g,'')
-                                let newCode = codeWithoutComent
-                                let startIndexes = codeWithoutComent.match(
-                                    /if[\s\n]*\([\s\n]*(server|\![\s\n]*client)[\s\n]*\)/g
-                                )?.map(
-                                    str => codeWithoutComent.indexOf(str)
-                                ) ?? []
-                                if(startIndexes.length < 1) return
-                                for(let StartIndex of startIndexes) {
-                                    let startIndex = StartIndex
-                                    let startBracketIndex = codeWithoutComent.indexOf("{", startIndex)
-                                    let endBracketIndex = codeWithoutComent.indexOf("}", startIndex)
-                                    while(true) {
-                                        startBracketIndex = codeWithoutComent.indexOf("{", startBracketIndex + 1)
-                                        const newEndBracketIndex = codeWithoutComent.indexOf("}", endBracketIndex + 1)
-                                        if(
-                                            !(endBracketIndex > startBracketIndex 
-                                            && startBracketIndex > 0 
-                                            && newEndBracketIndex > 0)
-                                        ) break
-                                        endBracketIndex = newEndBracketIndex
-                                    }
-                                    newCode = newCode.replace(
-                                        codeWithoutComent.substring(startIndex, endBracketIndex + 1), 
-                                        ''
-                                    )
-                                }
-
-                                return newCode
-                            }
-                        }
-                        // {
-                        //     resolveId(id, importer, options) {
-                        //         if(id === "blitz" && !options.ssr) return resolve.sync("blitz/dist/index-browser.mjs")
-                        //     },
-                        //     enforce: "pre",
-                        //     name: "blitz:let-blitz-load-on-frontend"
-                        // },
-                        // {
-                        //     async resolveId(id) {
-                        //         if (id.startsWith('./') || id.startsWith('/')) return;
-                        //         try {
-                        //             const posibleImportExtensionGlob = `?(${consideredExtensions.join('|')})`;
-                        //             const posibleImports = [...glob(`./${id}${posibleImportExtensionGlob}`)];
-                        //             if (posibleImports.length === 0) return;
-                        //             const resolvedImport = path.resolve(
-                        //                 selectImportFromPosibleImports(posibleImports, consideredExtensions),
-                        //             );
-                        //             try {
-                        //                 const indexfile = glob(
-                        //                     `${resolvedImport}/index?(${consideredExtensions.join('|')})`
-                        //                 )[0];
-                        //                 await fs.stat(path.join(indexfile));
-                        //                 return indexfile;
-                        //             } catch {
-                        //                 return resolvedImport;
-                        //             }
-                        //         } catch {}
-                        //     },
-                        //     name: 'typescript:import-from-base',
-                        //     enforce: 'pre'
-                        // }
+                        })
                     ]
                 }
             }

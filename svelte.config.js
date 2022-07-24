@@ -13,6 +13,10 @@ const config = createConfig({
 		vite: {
 			define: {
 				'process.env': process.env
+			},
+			optimizeDeps: {
+				
+				exclude: ["node-mocks-http"]
 			}
 		}
 	}

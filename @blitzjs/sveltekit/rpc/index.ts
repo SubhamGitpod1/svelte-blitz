@@ -1,5 +1,5 @@
 import { type Ctx, isClient, AuthenticationError, CSRFTokenMismatchError, AuthorizationError, NotFoundError, RedirectError } from "blitz";
-import {invoke as blitzInvoke} from "../../rpc/dist/index-browser.mjs"
+import {invoke as blitzInvoke} from "@blitzjs/rpc/dist/index-browser.mjs"
 import EventEmitter from "events"
 import type { Load } from "@sveltejs/kit";
 import {server} from "$app/env"
